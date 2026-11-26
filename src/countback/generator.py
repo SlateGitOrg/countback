@@ -8,7 +8,7 @@ Properties
   back through.
 - One seasonality shared by every segment: April-August at 2.5x the December-February level.
   Payment behaviour does not depend on the season.
-- Pay lags are lognormal with a coefficient of variation of 0.35.
+- Pay lags are lognormal with a coefficient of variation of 0.30.
 
 Injected events (recorded in truth.json)
 - Homebuilders pay 15 days slower on invoices dated from month 30.
