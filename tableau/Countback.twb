@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='utf-8'?>
+<workbook original-version="18.1" source-platform="win" version="18.1" xmlns:user="http://www.tableausoftware.com/xml/user">
+  <datasources>
+    <datasource caption="dso_monthly" inline="true" name="federated.dso_monthly" version="18.1">
+      <connection class="federated">
+        <named-connections>
+          <named-connection caption="data" name="textscan.dso_monthly">
+            <connection class="textscan" directory="data" filename="dso_monthly.csv" password="" server="" />
+          </named-connection>
+        </named-connections>
+        <relation connection="textscan.dso_monthly" name="dso_monthly.csv" table="[dso_monthly#csv]" type="table">
+          <columns character-set="UTF-8" header="yes" locale="en_US" separator=",">
+            <column datatype="integer" name="month_index" ordinal="0" />
+            <column datatype="date" name="month_end" ordinal="1" />
+            <column datatype="string" name="segment" ordinal="2" />
+            <column datatype="real" name="sales" ordinal="3" />
+            <column datatype="real" name="sales_per_day_3m" ordinal="4" />
+            <column datatype="real" name="ar_total" ordinal="5" />
+            <column datatype="real" name="ar_current" ordinal="6" />
+            <column datatype="real" name="ar_1_30" ordinal="7" />
+            <column datatype="real" name="ar_31_60" ordinal="8" />
+            <column datatype="real" name="ar_61_90" ordinal="9" />
+            <column datatype="real" name="ar_90_plus" ordinal="10" />
+            <column datatype="real" name="dso_countback" ordinal="11" />
+            <column datatype="real" name="bpdso_countback" ordinal="12" />
+            <column datatype="integer" name="dso_flagged" ordinal="13" />
+          </columns>
+        </relation>
+      </connection>
+      <column caption="Simple DSO" datatype="real" name="[Simple DSO]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="SUM([ar_total]) / SUM([sales_per_day_3m])" />
+      </column>
+      <column caption="ADD" datatype="real" name="[ADD]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="SUM([dso_countback]) - SUM([bpdso_countback])" />
+      </column>
+      <column caption="Percent Current" datatype="real" name="[Percent Current]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="ZN(SUM([ar_current])) / SUM([ar_total])" />
+      </column>
+      <column caption="Past Due 60 Plus Share" datatype="real" name="[Past Due 60 Plus Share]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="(SUM([ar_61_90]) + SUM([ar_90_plus])) / SUM([ar_total])" />
+      </column>
+    </datasource>
+    <datasource caption="dso_bridge" inline="true" name="federated.dso_bridge" version="18.1">
+      <connection class="federated">
+        <named-connections>
+          <named-connection caption="data" name="textscan.dso_bridge">
+            <connection class="textscan" directory="data" filename="dso_bridge.csv" password="" server="" />
+          </named-connection>
+        </named-connections>
+        <relation connection="textscan.dso_bridge" name="dso_bridge.csv" table="[dso_bridge#csv]" type="table">
+          <columns character-set="UTF-8" header="yes" locale="en_US" separator=",">
+            <column datatype="integer" name="from_month" ordinal="0" />
+            <column datatype="integer" name="to_month" ordinal="1" />
+            <column datatype="string" name="kind" ordinal="2" />
+            <column datatype="string" name="segment" ordinal="3" />
+            <column datatype="real" name="w_from" ordinal="4" />
+            <column datatype="real" name="w_to" ordinal="5" />
+            <column datatype="real" name="dso_from" ordinal="6" />
+            <column datatype="real" name="dso_to" ordinal="7" />
+            <column datatype="real" name="mix" ordinal="8" />
+            <column datatype="real" name="behaviour" ordinal="9" />
+            <column datatype="real" name="change" ordinal="10" />
+            <column datatype="real" name="index_from" ordinal="11" />
+            <column datatype="real" name="index_to" ordinal="12" />
+            <column datatype="real" name="portfolio_from" ordinal="13" />
+            <column datatype="real" name="portfolio_to" ordinal="14" />
+          </columns>
+        </relation>
+      </connection>
+    </datasource>
+  </datasources>
+  <worksheets>
+    <worksheet name="DSO method comparison">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="dso_monthly" name="federated.dso_monthly" />
+          </datasources>
+          <datasource-dependencies datasource="federated.dso_monthly">
+            <column caption="Simple DSO" datatype="real" name="[Simple DSO]" role="measure" type="quantitative">
+              <calculation class="tableau" formula="SUM([ar_total]) / SUM([sales_per_day_3m])" />
+            </column>
+            <column datatype="real" name="[dso_countback]" role="measure" type="quantitative" />
+            <column datatype="real" name="[bpdso_countback]" role="measure" type="quantitative" />
+            <column datatype="integer" name="[month_index]" role="dimension" type="ordinal" />
+            <column datatype="string" name="[segment]" role="dimension" type="nominal" />
+            <column-instance column="[Simple DSO]" derivation="User" name="[usr:Simple DSO:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[dso_countback]" derivation="Sum" name="[sum:dso_countback:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[bpdso_countback]" derivation="Sum" name="[sum:bpdso_countback:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[month_index]" derivation="None" name="[none:month_index:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[segment]" derivation="None" name="[none:segment:nk]" pivot="key" type="nominal" />
+          </datasource-dependencies>
+          <filter class="categorical" column="[federated.dso_monthly].[none:segment:nk]">
+            <groupfilter function="member" level="[none:segment:nk]" member="&quot;All&quot;" user:ui-enumeration="inclusive" user:ui-domain="database" user:ui-marker="enumerate" />
+          </filter>
+        </view>
+        <panes>
+          <pane>
+            <view>
+              <breakdown value="auto" />
+            </view>
+            <mark class="Line" />
+          </pane>
+        </panes>
+        <rows>([federated.dso_monthly].[usr:Simple DSO:qk] + [federated.dso_monthly].[sum:dso_countback:qk] + [federated.dso_monthly].[sum:bpdso_countback:qk])</rows>
+        <cols>[federated.dso_monthly].[none:month_index:qk]</cols>
+      </table>
+    </worksheet>
+    <worksheet name="ADD by segment">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="dso_monthly" name="federated.dso_monthly" />
+          </datasources>
+          <datasource-dependencies datasource="federated.dso_monthly">
+            <column caption="ADD" datatype="real" name="[ADD]" role="measure" type="quantitative">
+              <calculation class="tableau" formula="SUM([dso_countback]) - SUM([bpdso_countback])" />
+            </column>
+            <column datatype="integer" name="[month_index]" role="dimension" type="ordinal" />
+            <column datatype="string" name="[segment]" role="dimension" type="nominal" />
+            <column-instance column="[ADD]" derivation="User" name="[usr:ADD:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[month_index]" derivation="None" name="[none:month_index:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[segment]" derivation="None" name="[none:segment:nk]" pivot="key" type="nominal" />
+          </datasource-dependencies>
+          <filter class="categorical" column="[federated.dso_monthly].[none:segment:nk]">
+            <groupfilter function="except" user:ui-enumeration="exclusive" user:ui-domain="database" user:ui-marker="enumerate">
+              <groupfilter function="level-members" level="[none:segment:nk]" />
+              <groupfilter function="member" level="[none:segment:nk]" member="&quot;All&quot;" />
+            </groupfilter>
+          </filter>
+        </view>
+        <panes>
+          <pane>
+            <view>
+              <breakdown value="auto" />
+            </view>
+            <mark class="Line" />
+            <encodings>
+              <color column="[federated.dso_monthly].[none:segment:nk]" />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[federated.dso_monthly].[usr:ADD:qk]</rows>
+        <cols>[federated.dso_monthly].[none:month_index:qk]</cols>
+      </table>
+    </worksheet>
+    <worksheet name="Aging mix">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="dso_monthly" name="federated.dso_monthly" />
+          </datasources>
+          <datasource-dependencies datasource="federated.dso_monthly">
+            <column datatype="real" name="[ar_current]" role="measure" type="quantitative" />
+            <column datatype="real" name="[ar_1_30]" role="measure" type="quantitative" />
+            <column datatype="real" name="[ar_31_60]" role="measure" type="quantitative" />
+            <column datatype="real" name="[ar_61_90]" role="measure" type="quantitative" />
+            <column datatype="real" name="[ar_90_plus]" role="measure" type="quantitative" />
+            <column datatype="integer" name="[month_index]" role="dimension" type="ordinal" />
+            <column datatype="string" name="[segment]" role="dimension" type="nominal" />
+            <column caption="Percent Current" datatype="real" name="[Percent Current]" role="measure" type="quantitative">
+              <calculation class="tableau" formula="ZN(SUM([ar_current])) / SUM([ar_total])" />
+            </column>
+            <column caption="Past Due 60 Plus Share" datatype="real" name="[Past Due 60 Plus Share]" role="measure" type="quantitative">
+              <calculation class="tableau" formula="(SUM([ar_61_90]) + SUM([ar_90_plus])) / SUM([ar_total])" />
+            </column>
+            <column-instance column="[ar_current]" derivation="Sum" name="[sum:ar_current:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[ar_1_30]" derivation="Sum" name="[sum:ar_1_30:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[ar_31_60]" derivation="Sum" name="[sum:ar_31_60:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[ar_61_90]" derivation="Sum" name="[sum:ar_61_90:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[ar_90_plus]" derivation="Sum" name="[sum:ar_90_plus:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[month_index]" derivation="None" name="[none:month_index:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[segment]" derivation="None" name="[none:segment:nk]" pivot="key" type="nominal" />
+            <column-instance column="[Percent Current]" derivation="User" name="[usr:Percent Current:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[Past Due 60 Plus Share]" derivation="User" name="[usr:Past Due 60 Plus Share:qk]" pivot="key" type="quantitative" />
+          </datasource-dependencies>
+          <filter class="categorical" column="[federated.dso_monthly].[none:segment:nk]">
+            <groupfilter function="member" level="[none:segment:nk]" member="&quot;All&quot;" user:ui-enumeration="inclusive" user:ui-domain="database" user:ui-marker="enumerate" />
+          </filter>
+        </view>
+        <panes>
+          <pane>
+            <view>
+              <breakdown value="auto" />
+            </view>
+            <mark class="Area" />
+            <encodings>
+              <tooltip column="[federated.dso_monthly].[usr:Percent Current:qk]" />
+              <tooltip column="[federated.dso_monthly].[usr:Past Due 60 Plus Share:qk]" />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>([federated.dso_monthly].[sum:ar_current:qk] + [federated.dso_monthly].[sum:ar_1_30:qk] + [federated.dso_monthly].[sum:ar_31_60:qk] + [federated.dso_monthly].[sum:ar_61_90:qk] + [federated.dso_monthly].[sum:ar_90_plus:qk])</rows>
+        <cols>[federated.dso_monthly].[none:month_index:qk]</cols>
+      </table>
+    </worksheet>
+    <worksheet name="DSO bridge">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="dso_bridge" name="federated.dso_bridge" />
+          </datasources>
+          <datasource-dependencies datasource="federated.dso_bridge">
+            <column datatype="real" name="[mix]" role="measure" type="quantitative" />
+            <column datatype="real" name="[behaviour]" role="measure" type="quantitative" />
+            <column datatype="integer" name="[to_month]" role="dimension" type="nominal" />
+            <column datatype="string" name="[segment]" role="dimension" type="nominal" />
+            <column datatype="string" name="[kind]" role="dimension" type="nominal" />
+            <column-instance column="[mix]" derivation="Sum" name="[sum:mix:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[behaviour]" derivation="Sum" name="[sum:behaviour:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[to_month]" derivation="None" name="[none:to_month:qk]" pivot="key" type="quantitative" />
+            <column-instance column="[segment]" derivation="None" name="[none:segment:nk]" pivot="key" type="nominal" />
+            <column-instance column="[kind]" derivation="None" name="[none:kind:nk]" pivot="key" type="nominal" />
+          </datasource-dependencies>
+          <filter class="categorical" column="[federated.dso_bridge].[none:segment:nk]">
+            <groupfilter function="member" level="[none:segment:nk]" member="&quot;All&quot;" user:ui-enumeration="inclusive" user:ui-domain="database" user:ui-marker="enumerate" />
+          </filter>
+          <filter class="categorical" column="[federated.dso_bridge].[none:kind:nk]">
+            <groupfilter function="member" level="[none:kind:nk]" member="&quot;yoy&quot;" user:ui-domain="database" user:ui-enumeration="inclusive" user:ui-marker="enumerate" />
+          </filter>
+        </view>
+        <panes>
+          <pane>
+            <view>
+              <breakdown value="auto" />
+            </view>
+            <mark class="Bar" />
+          </pane>
+        </panes>
+        <rows>([federated.dso_bridge].[sum:mix:qk] + [federated.dso_bridge].[sum:behaviour:qk])</rows>
+        <cols>[federated.dso_bridge].[none:to_month:qk]</cols>
+      </table>
+    </worksheet>
+  </worksheets>
+  <dashboards>
+    <dashboard name="Countback DSO">
+      <size maxheight="800" maxwidth="1200" minheight="800" minwidth="1200" />
+      <zones>
+        <zone h="100000" id="1" type-v2="layout-basic" w="100000" x="0" y="0">
+          <zone h="50000" id="2" name="DSO method comparison" w="50000" x="0" y="0" />
+          <zone h="50000" id="3" name="ADD by segment" w="50000" x="50000" y="0" />
+          <zone h="50000" id="4" name="Aging mix" w="50000" x="0" y="50000" />
+          <zone h="50000" id="5" name="DSO bridge" w="50000" x="50000" y="50000" />
+        </zone>
+      </zones>
+    </dashboard>
+  </dashboards>
+  <windows source-height="30">
+    <window class="worksheet" name="DSO method comparison">
+      <cards />
+    </window>
+    <window class="worksheet" name="ADD by segment">
+      <cards />
+    </window>
+    <window class="worksheet" name="Aging mix">
+      <cards />
+    </window>
+    <window class="worksheet" name="DSO bridge">
+      <cards />
+    </window>
+    <window class="dashboard" maximized="true" name="Countback DSO">
+      <viewpoints />
+      <active id="-1" />
+    </window>
+  </windows>
+</workbook>
